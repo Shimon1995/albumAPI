@@ -10,6 +10,7 @@ async function bootstrap() {
     .setDescription('The album API description')
     .setVersion('1.0')
     .addTag('albums')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('swagger', app, document);

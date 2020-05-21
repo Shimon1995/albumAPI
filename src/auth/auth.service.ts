@@ -75,8 +75,6 @@ export class AuthService {
     const data = await this.verifyToken(token);
     const user = await this.userService.find(data._id);
 
-    console.log(data, user);
-
     await this.tokenService.delete(data._id, token);
 
     if (user && user.status === StatusEnum.pending) {

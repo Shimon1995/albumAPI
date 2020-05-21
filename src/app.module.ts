@@ -6,6 +6,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { TokenModule } from './token/token.module';
 import { MailModule } from './mail/mail.module';
+import { AlbumModule } from './album/album.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { MailModule } from './mail/mail.module';
     }),
     TokenModule,
     MailModule,
+    AlbumModule,
   ],
   controllers: [AppController],
   providers: [],
