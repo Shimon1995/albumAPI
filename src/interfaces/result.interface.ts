@@ -1,4 +1,4 @@
-export interface result {
+export interface Result {
   n?: number;
   ok?: number;
 }

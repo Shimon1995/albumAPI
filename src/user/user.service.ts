@@ -5,7 +5,7 @@ import * as bcrypt from 'bcrypt';
 import * as _ from 'lodash';
 import { IUser } from './interfaces/user.interface';
 import { CreateUserDTO } from './dto/create-user.dto';
-import { result } from 'src/interfaces/result.interface';
+import { Result } from 'src/interfaces/result.interface';
 
 @Injectable()
 export class UserService {
@@ -27,7 +27,7 @@ export class UserService {
     return user;
   }
 
-  async remove(_id: string): Promise<result> {
+  async remove(_id: string): Promise<Result> {
     return this.userModel.remove({ _id }).exec();
   }
 
@@ -40,6 +40,6 @@ export class UserService {
   }
 
   findByUsername(username: string): Promise<IUser> {
-    return this.userModel.findOne({ firstName: username }).exec();
+    return this.userModel.findOne({ username }).exec();
   }
 }

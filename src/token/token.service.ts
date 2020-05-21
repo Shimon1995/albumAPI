@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { IToken } from './interfaces/token.interface';
-import { result } from 'src/interfaces/result.interface';
+import { Result } from 'src/interfaces/result.interface';
 import { CreateTokenDTO } from './dto/create-token.dto';
 
 @Injectable()
@@ -13,11 +13,11 @@ export class TokenService {
     return new this.tokenModel(createTokenDto).save();
   }
 
-  async delete(uId: string, token: string): Promise<result> {
+  async delete(uId: string, token: string): Promise<Result> {
     return this.tokenModel.deleteOne({ uId, token }).exec();
   }
 
-  async deleteAll(uId: string): Promise<result> {
+  async deleteAll(uId: string): Promise<Result> {
     return this.tokenModel.deleteMany({ uId }).exec();
   }
 

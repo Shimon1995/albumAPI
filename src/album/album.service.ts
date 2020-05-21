@@ -9,11 +9,13 @@ import { CreateAlbumDTO } from './dto/create-album.dto';
 import { IAlbum } from './interfaces/album.interface';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from 'src/user/user.service';
+import { IImage } from './interfaces/image.interface';
 
 @Injectable()
 export class AlbumService {
   constructor(
     @InjectModel('Album') private readonly albumModel: Model<IAlbum>,
+    @InjectModel('Image') private readonly ImageModel: Model<IImage>,
     private readonly configService: ConfigService,
     private readonly userService: UserService,
   ) {}
@@ -31,7 +33,6 @@ export class AlbumService {
   }
 
   async createAlbum(createAlbum: CreateAlbumDTO): Promise<IAlbum> {
-    const images = await this.getAlbumImages(createAlbum.link);
     const user = await this.userService.findByUsername(createAlbum.username);
 
     let album: IAlbum;
@@ -39,31 +40,41 @@ export class AlbumService {
     if (user) {
       album = new this.albumModel({
         uId: user._id,
-        images,
         name: createAlbum.name,
       });
     } else {
       album = new this.albumModel({
-        images,
         name: createAlbum.name,
       });
     }
 
-    return album.save();
+    const result = await album.save();
+
+    const images = await this.getAlbumLinkImages(createAlbum.link);
+    await this.saveImages(images, createAlbum.name);
+
+    return result;
   }
 
-  private async getAlbumImages(link: string): Promise<string[]> {
+  private async saveImages(images: string[], albumName: string) {
+    const { _id } = await this.albumModel.findOne({ name: albumName });
+    for await (const image of images) {
+      new this.ImageModel({ aId: _id, image }).save();
+    }
+  }
+
+  private async getAlbumLinkImages(link: string): Promise<string[]> {
     let links: Array<string>;
     if (_.includes(link, 'instagram')) {
       links = await this.getImagesInstagram(link);
     } else {
       links = await this.getImagesNotInstagram(link);
     }
-    links = await this.validateBySize(links);
+    links = await this.vldBySizeNExt(links);
     return links;
   }
 
-  private async validateBySize(links: Array<string>) {
+  private async vldBySizeNExt(links: Array<string>) {
     let result: Array<string> = [];
     for (const url of links) {
       const { headers } = await axios({ method: 'GET', url });
