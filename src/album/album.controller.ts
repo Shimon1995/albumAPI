@@ -19,6 +19,8 @@ import { AuthGuard } from '@nestjs/passport';
 export class AlbumController {
   constructor(private albumService: AlbumService) {}
 
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   @Post('createAlbum')
   createAlbum(
     @Body(ValidationPipe) createAlbumDto: CreateAlbumDTO,
@@ -33,6 +35,8 @@ export class AlbumController {
     return this.albumService.getAlbumList();
   }
 
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   @Get('getUserAlbums')
   getUserAlbums(
     @Query(ValidationPipe) findAlbum: FindAlbumsDTO,

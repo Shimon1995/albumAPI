@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import axios from 'axios';
 import * as _ from 'lodash';
 import * as chrome from 'chrome-aws-lambda';
 import { launch } from 'puppeteer';
@@ -52,12 +53,29 @@ export class AlbumService {
   }
 
   private async getAlbumImages(link: string): Promise<string[]> {
-    // add validation by size
+    let links: Array<string>;
     if (_.includes(link, 'instagram')) {
-      return this.getImagesInstagram(link);
+      links = await this.getImagesInstagram(link);
     } else {
-      return this.getImagesNotInstagram(link);
+      links = await this.getImagesNotInstagram(link);
     }
+    links = await this.validateBySize(links);
+    return links;
+  }
+
+  private async validateBySize(links: Array<string>) {
+    let result: Array<string> = [];
+    for (const url of links) {
+      const { headers } = await axios({ method: 'GET', url });
+      if (
+        headers['content-length'] >= 200 * 200 &&
+        (headers['content-type'] === 'image/jpeg' ||
+          headers['content-type'] === 'image/png')
+      ) {
+        result.push(url);
+      }
+    }
+    return result;
   }
 
   private async getImagesInstagram(url: string): Promise<string[]> {
