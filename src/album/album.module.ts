@@ -6,7 +6,7 @@ import { AlbumSchema } from './schemas/album.schema';
 import { AlbumController } from './album.controller';
 import { AlbumService } from './album.service';
 import { UserModule } from 'src/user/user.module';
-import { ImageSchema } from './schemas/image.schema';
+import { ImageSchema } from '../image/schemas/image.schema';
 
 @Module({
   imports: [
@@ -19,7 +19,7 @@ import { ImageSchema } from './schemas/image.schema';
     UserModule,
   ],
   providers: [AlbumService],
-  exports: [AlbumService],
   controllers: [AlbumController],
+  exports: [AlbumService],
 })
 export class AlbumModule {}

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import axios from 'axios';
@@ -9,19 +9,19 @@ import { CreateAlbumDTO } from './dto/create-album.dto';
 import { IAlbum } from './interfaces/album.interface';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from 'src/user/user.service';
-import { IImage } from './interfaces/image.interface';
+import { IImage } from '../image/interfaces/image.interface';
 
 @Injectable()
 export class AlbumService {
   constructor(
     @InjectModel('Album') private readonly albumModel: Model<IAlbum>,
-    @InjectModel('Image') private readonly ImageModel: Model<IImage>,
+    @InjectModel('Image') private readonly imageModel: Model<IImage>,
     private readonly configService: ConfigService,
     private readonly userService: UserService,
   ) {}
 
-  async getAlbumList(): Promise<IAlbum[]> {
-    return this.albumModel.find();
+  getAlbumList(): Promise<IAlbum[]> {
+    return this.albumModel.find({}).exec();
   }
 
   async getUserAlbumList(username: string): Promise<IAlbum[]> {
@@ -29,7 +29,7 @@ export class AlbumService {
     if (user) {
       return this.albumModel.find({ uId: user._id });
     }
-    return [];
+    throw new BadRequestException('No such user');
   }
 
   async createAlbum(createAlbum: CreateAlbumDTO): Promise<IAlbum> {
@@ -56,10 +56,14 @@ export class AlbumService {
     return result;
   }
 
+  findByName(name: string): Promise<IAlbum> {
+    return this.albumModel.findOne({ name }).exec();
+  }
+
   private async saveImages(images: string[], albumName: string) {
     const { _id } = await this.albumModel.findOne({ name: albumName });
     for await (const image of images) {
-      new this.ImageModel({ aId: _id, image }).save();
+      new this.imageModel({ aId: _id, image }).save();
     }
   }
 

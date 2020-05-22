@@ -8,6 +8,7 @@ import { TokenModule } from './token/token.module';
 import { MailModule } from './mail/mail.module';
 import { AlbumModule } from './album/album.module';
 import { CommentModule } from './comment/comment.module';
+import { ImagesModule } from './image/images.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { CommentModule } from './comment/comment.module';
     MailModule,
     AlbumModule,
     CommentModule,
+    ImagesModule,
   ],
   controllers: [AppController],
   providers: [],

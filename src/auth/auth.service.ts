@@ -42,6 +42,7 @@ export class AuthService {
   }
   async logIn({ email, password }: SignInDTO): Promise<IReadableUser> {
     const user = await this.userService.findByEmail(email);
+    await this.tokenService.deleteAll(user._id);
 
     if (user && (await bcrypt.compare(password, user.password))) {
       if (user.status !== StatusEnum.active) {
