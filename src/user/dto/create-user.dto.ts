@@ -18,6 +18,11 @@ export class CreateUserDTO {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
+  readonly username: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
   readonly firstName: string;
 
   @ApiProperty()

@@ -22,12 +22,14 @@ import { StatusEnum } from 'src/user/enums/status.enum';
 import { SignInDTO } from './dto/signin.dto';
 import { UserSensitiveEnum } from 'src/user/enums/protected-fields.enum';
 import { IMail } from 'src/mail/interfaces/mail.interface';
+import { LogOutDTO } from './dto/logout.dto';
+import { Result } from 'src/interfaces/result.interface';
 
 @Injectable()
 export class AuthService {
   private clientAppUrl: string;
   constructor(
-    private JwtService: JwtService,
+    private jwtService: JwtService,
     private userService: UserService,
     private tokenService: TokenService,
     private mailService: MailService,
@@ -55,16 +57,16 @@ export class AuthService {
         roles: user.roles,
       };
 
-      const token = await this.generateToken(toknePayload);
+      const token = await this.generateBearerToken(toknePayload);
       const expiresAt = moment()
         .add(1, 'day')
         .toISOString();
-      await this.saveToken({ token, expiresAt, uId: user._id });
+      await this.saveBearerToken({ token, expiresAt, uId: user._id });
 
       const readableUser = user.toObject() as IReadableUser;
       readableUser.accessToken = token;
 
-      return _.omit<any>(
+      return _.omit<IReadableUser>(
         readableUser,
         Object.values(UserSensitiveEnum),
       ) as IReadableUser;
@@ -72,8 +74,13 @@ export class AuthService {
     throw new BadRequestException('Bad credentials');
   }
 
+  async logOut(logoutDto: LogOutDTO): Promise<Result> {
+    const user = await this.userService.findByEmail(logoutDto.userEmail);
+    return this.tokenService.delete(user._id, logoutDto.token);
+  }
+
   async confirm(token: string) {
-    const data = await this.verifyToken(token);
+    const data = await this.verifyBearerToken(token);
     const user = await this.userService.find(data._id);
 
     await this.tokenService.delete(data._id, token);
@@ -95,10 +102,10 @@ export class AuthService {
       .add(1, 'day')
       .toISOString();
 
-    const token = await this.generateToken(tokenPayload, { expiresIn });
+    const token = await this.generateBearerToken(tokenPayload, { expiresIn });
     const tokenLink = `${this.clientAppUrl}/auth/confirm?token=${token}`;
 
-    await this.saveToken({ token, uId: user._id, expiresAt });
+    await this.saveBearerToken({ token, uId: user._id, expiresAt });
 
     this.mailService.send({
       from: 'Album Bot',
@@ -110,15 +117,15 @@ export class AuthService {
       `,
     } as IMail);
   }
-  private async generateToken(
+  private async generateBearerToken(
     data: ITokenPayload,
     options?: SignOptions,
   ): Promise<string> {
-    return this.JwtService.sign(data, options);
+    return this.jwtService.sign(data, options);
   }
-  private async verifyToken(token: string): Promise<ITokenPayload> {
+  private async verifyBearerToken(token: string): Promise<ITokenPayload> {
     try {
-      const data = (await this.JwtService.verify(token)) as ITokenPayload;
+      const data = (await this.jwtService.verify(token)) as ITokenPayload;
       const tokenExists = await this.tokenService.exists(data._id, token);
       if (tokenExists) {
         return data;
@@ -128,7 +135,7 @@ export class AuthService {
       throw new UnauthorizedException();
     }
   }
-  private async saveToken(createTokenDto: CreateTokenDTO) {
+  private async saveBearerToken(createTokenDto: CreateTokenDTO) {
     return this.tokenService.create(createTokenDto);
   }
 }

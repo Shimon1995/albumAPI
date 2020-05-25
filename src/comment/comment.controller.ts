@@ -20,6 +20,8 @@ import { RemoveCommentDTO } from './dto/remove-comment.dto';
 import { UpdateCommentDTO } from './dto/update-comment.dto';
 import { Result } from 'src/interfaces/result.interface';
 import { AuthGuard } from '@nestjs/passport';
+import { RolesGuard } from 'src/guards/roles.guard';
+import { JwtGuard } from 'src/guards/jwt.guard';
 
 @ApiTags('comment')
 @Controller('comment')
@@ -34,7 +36,7 @@ export class CommentController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtGuard, RolesGuard)
   @Post('leaveComment')
   leaveCommnet(
     @Body(ValidationPipe) leaveCommentDto: LeaveCommentDTO,
@@ -44,7 +46,7 @@ export class CommentController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtGuard, RolesGuard)
   @Delete('removeComment')
   removeComment(
     @Body(ValidationPipe) removeCommentDto: RemoveCommentDTO,
@@ -54,7 +56,7 @@ export class CommentController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtGuard, RolesGuard)
   @Patch('updateComment')
   updateComment(
     @Body(ValidationPipe) updateCommentDto: UpdateCommentDTO,
