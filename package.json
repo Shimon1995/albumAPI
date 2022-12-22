@@ -33,7 +33,7 @@
     "chrome-aws-lambda": "^3.1.0",
     "class-transformer": "^0.2.3",
     "class-validator": "^0.12.2",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.15",
     "moment": "^2.26.0",
     "mongoose": "^5.9.15",
